@@ -1,10 +1,24 @@
 import discord
 from configparser import ConfigParser
 import re
+from datetime import datetime
+import pandas as pd
+
+import Gameday
+import BandEvent
 
 configFileName = 'config.ini'
 config = ConfigParser()
 settings = config.read(configFileName)
+gamedayCSV = "gamedays.csv"
+gamedayDF = pd.read_csv(gamedayCSV)
+
+events = []
+for index, gameday in gamedayDF.iterrows():
+    game = Gameday(gameday['Name'],gameday['Time'],gameday['doCheckin'],
+                   gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
+    events.append(game)
+    print(game)
 
 prefix = '!'
 

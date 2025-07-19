@@ -2,23 +2,29 @@ import discord
 from configparser import ConfigParser
 import re
 from datetime import datetime
-import pandas as pd
+import csv
+from datetime import datetime
 
-import Gameday
-import BandEvent
+from Gameday import Gameday
+from BandEvent import BandEvent
 
 configFileName = 'config.ini'
 config = ConfigParser()
 settings = config.read(configFileName)
-gamedayCSV = "gamedays.csv"
-gamedayDF = pd.read_csv(gamedayCSV)
+gamedayCSV = "events.csv"
 
 events = []
-for index, gameday in gamedayDF.iterrows():
-    game = Gameday(gameday['Name'],gameday['Time'],gameday['doCheckin'],
-                   gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
-    events.append(game)
-    print(game)
+with open(gamedayCSV, newline='') as csvfile:
+    format_string = "%Y-%m-%d %H:%M"
+    reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    for row in reader:
+        print(', '.join(row))
+        event_time = datetime.strptime(row[2], format_string)
+        print(event_time)
+    #game = Gameday(gameday['Name'],gameday['Time'],gameday['doCheckin'],
+                #gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
+    #events.append(game)
+    #print(game)
 
 prefix = '!'
 

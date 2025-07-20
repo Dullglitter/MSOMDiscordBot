@@ -21,6 +21,10 @@ with open(gamedayCSV, newline='') as csvfile:
         print(', '.join(row))
         event_time = datetime.strptime(row[2], format_string)
         print(event_time)
+        if row[0] == 'gameday':
+            events.append(Gameday(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+        elif row[0] == 'event':
+            events.append(BandEvent(row[1], row[2], row[3], row[4]))
     #game = Gameday(gameday['Name'],gameday['Time'],gameday['doCheckin'],
                 #gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
     #events.append(game)

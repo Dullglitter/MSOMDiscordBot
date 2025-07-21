@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 import csv
 from datetime import datetime
+import sys
 
 from Gameday import Gameday
 from BandEvent import BandEvent
@@ -29,7 +30,11 @@ with open(gamedayCSV, newline='') as csvfile:
                 #gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
     #events.append(game)
     #print(game)
-
+    events.sort()
+    
+    for event in events:
+        print(event.toCSVrow())
+        
 prefix = '!'
 
 intents = discord.Intents.default()
@@ -66,6 +71,12 @@ async def on_message(message):
                 await message.channel.send('TODO!')
         else:
             await message.channel.send('Error: Not enough arguments')
+            
+    if command == 'stop':
+        await message.channel.send('stopping')
+        client.close()
+        print('stopped')
+        sys.exit(0)
             
 
 client.run(config['BotValues']['TOKEN'])

@@ -11,7 +11,7 @@ from BandEvent import BandEvent
 
 configFileName = 'config.ini'
 config = ConfigParser()
-settings = config.read(configFileName)
+config.read(configFileName)
 gamedayCSV = "events.csv"
 
 events = []
@@ -33,9 +33,9 @@ with open(gamedayCSV, newline='') as csvfile:
     events.sort()
     
     for event in events:
-        print(event.toCSVrow())
+        print(event)
         
-prefix = '!'
+prefix = config['BotValues']['PREFIX']
 
 intents = discord.Intents.default()
 intents.message_content = True

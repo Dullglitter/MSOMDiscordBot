@@ -28,4 +28,19 @@ class BandEvent:
     def __gt__(self, other):
         return self.date > other.date
     
+    def __str__(self):
+        "Band Event" + self.internal_str()
+        
+    def internal_str(self):
+        NAndC = ""
+        if self.doNotify:
+            if self.doCheckin:
+                NAndC = "with reminder and check-in"
+            else:
+                NAndC = "with reminder"
+        elif self.doCheckin:
+            NAndC = "with check-in"
+        #maybe do a check to see if time is midnight, and if it is just include the date
+        return " at {time} {features}".format(time=str(self.time), features=NAndC)
+    
     

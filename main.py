@@ -52,31 +52,47 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.lower() == prefix + 'are you a turtle?':
+    elif message.content.lower() == prefix + 'are you a turtle?':
         await message.channel.send("YOU BET YOUR SWEET ASS I AM!!!", reference=message)
-    if not message.content.startswith(prefix):
+    elif not message.content.startswith(prefix):
         return
     parsedMessage = message.content.split(' ')
     command = parsedMessage[0].lower()[1:]
     if command == 'hello':
         await message.channel.send('Hello!')
         
-    if command == 'set':
+    elif command == 'set':
         if len(parsedMessage) >= 2:
-            if parsedMessage[1].lower() == 'announce':
-                await message.channel.send('TODO!')
-            if parsedMessage[1].lower() == 'weenie':
-                await message.channel.send('TODO!')
-            if parsedMessage[1].lower() == 'config':
-                await message.channel.send('TODO!')
+            
+            with open('config.ini', 'w') as configfile: 
+                # done in each if statement in order to make sure writes are being done correctly
+                if parsedMessage[1].lower() == 'announce':
+                    config['DiscordValues']['ANNOUNCECHANNEL'] = str(message.channel.id)
+                    config.write(configfile)
+                    await client.get_channel(int(config['DiscordValues']['ANNOUNCECHANNEL'])).send('set announce channel')
+                elif parsedMessage[1].lower() == 'weenie':
+                    config['DiscordValues']['WEENIECHANNEL'] = str(message.channel.id)
+                    config.write(configfile)
+                    await client.get_channel(int(config['DiscordValues']['WEENIECHANNEL'])).send('set weenie channel')
+                elif parsedMessage[1].lower() == 'output':
+                    config['DiscordValues']['OUTPUTCHANNEL'] = str(message.channel.id)
+                    config.write(configfile)
+                    await client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL'])).send('set output channel')
+                else:
+                    await message.channel.send('Unknown configuration: ' + parsedMessage[1].lower())
+                
         else:
             await message.channel.send('Error: Not enough arguments')
             
-    if command == 'stop':
+    elif command == 'stop':
         await message.channel.send('stopping')
         client.close()
         print('stopped')
         sys.exit(0)
+    elif command == 'channelid':
+        id = str(message.channel.id)
+        await message.channel.send(id)
+        await client.get_channel(int(id)).send('test')
             
 
 client.run(config['BotValues']['TOKEN'])

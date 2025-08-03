@@ -16,9 +16,9 @@ class BandEvent:
         self.doCheckin = bool(doCheckin)
         
     def toCSVrow(self):
-        return 'event,' + self.internaltoCSVrow()
+        return 'event,' + self._toCSVrow()
     
-    def internaltoCSVrow(self):
+    def _toCSVrow(self):
         # if called by subclass, make sure to start with comma
         return '{},{},{},{}'.format(self.name, str(self.time), str(self.doNotify), str(self.doCheckin))
     
@@ -29,9 +29,9 @@ class BandEvent:
         return self.date > other.date
     
     def __str__(self):
-        "Band Event" + self.internal_str()
+        "Band Event" + self._str()
         
-    def internal_str(self):
+    def _str(self):
         NAndC = ""
         if self.doNotify:
             if self.doCheckin:
@@ -42,5 +42,8 @@ class BandEvent:
             NAndC = "with check-in"
         #maybe do a check to see if time is midnight, and if it is just include the date
         return " at {time} {features}".format(time=str(self.time), features=NAndC)
+    
+    def announce_str(role):
+        return ''
     
     

@@ -46,7 +46,6 @@ client = discord.Client(intents=intents)
 @tasks.loop(minutes=1)
 async def time_check():
     message_channel = client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL']))
-    print('got here')
     await message_channel.send('test')
 
 @time_check.before_loop
@@ -102,6 +101,7 @@ async def on_message(message):
             
     elif command == 'stop':
         await message.channel.send('stopping')
+        write_to_CSV()
         time_check.stop()
         client.close()
         print('stopped')
@@ -110,9 +110,20 @@ async def on_message(message):
         id = str(message.channel.id)
         await message.channel.send(id)
         await client.get_channel(int(id)).send('test')
-            
-client.run(config['BotValues']['TOKEN'])
 
 def announce(event:BandEvent):
-    event.announce_str(config['BotValues']['ROLE'])
+    announcement = event.announce_str('<@&{}>'.format(config['BotValues']['ROLE']))
+    message_channel = client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL']))
+    message_channel.send(announcement)
     
+def write_to_CSV():
+    CSV_str = ''
+    CSV_str += events[0].toCSVrow()
+    for e in events[1:]:
+        CSV_str += '\n'
+        CSV_str += e.toCSVrow()
+        
+    with open('events.csv', 'w') as f:
+        f.write(CSV_str)
+            
+client.run(config['BotValues']['TOKEN'])

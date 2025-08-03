@@ -11,11 +11,11 @@ class Gameday(BandEvent):
         
         
     def toCSVrow(self):
-        return 'gameday,' + super().internaltoCSVrow() + ',{},{},{},{}'.format(
+        return 'gameday,' + super()._toCSVrow() + ',{},{},{},{}'.format(
             self.otherTeam, str(self.isHome), str(self.isTimeAnnounced), self.otherMascot)
         
         
     def __str__(self):
         location = 'UMD' if self.isHome else self.otherTeam
         time = 'with time finalized' if self.isTimeAnnounced else 'with time not announced'
-        return 'Game' + super().internal_str() + ' against {} at {} {}, beat the {}!'.format(self.otherTeam, location, time, self.otherMascot)
+        return 'Game' + super()._str() + ' against {} at {} {}, beat the {}!'.format(self.otherTeam, location, time, self.otherMascot)

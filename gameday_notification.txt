@@ -1,4 +1,4 @@
-<@&{role}> HAPPY GAME DAY AGAINST {other_school}
+{role} HAPPY GAME DAY AGAINST {other_school}
 Rehearsal starts at {time}, dont be late! 
 Gameday checklist:
 •Instrument + neckstrap + reeds (please don’t forget these)
@@ -14,7 +14,7 @@ Gameday checklist:
    -black gloves 
    -hat box: hat, plume, spats
 •earplugs and lyre for the stands
-•RED water “bottle” from early week check-in, make sure it is labeled with name and section, make sure you can clip it to your uniform pants, you will be trucking and running pregame with it
+•RED bloodbag from early week check-in, make sure it is labeled with name and section, make sure you can clip it to your uniform pants, you will be trucking and running pregame with it
 
 Other things that may be nice to have
 •sunscreen (it never hurts)

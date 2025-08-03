@@ -1,4 +1,5 @@
 from BandEvent import BandEvent
+from datetime import datetime
 
 class Gameday(BandEvent):
     
@@ -19,3 +20,11 @@ class Gameday(BandEvent):
         location = 'UMD' if self.isHome else self.otherTeam
         time = 'with time finalized' if self.isTimeAnnounced else 'with time not announced'
         return 'Game' + super()._str() + ' against {} at {} {}, beat the {}!'.format(self.otherTeam, location, time, self.otherMascot)
+    
+    def announce_str(self, role):
+        announcement = ''
+        with open('gameday_notification.txt', 'r') as f:
+            announcement = f.read()
+        announcement = announcement.format(role=role, other_school=self.otherTeam, time=self.time.strftime('%#I:%M %p'), 
+                                           other_mascot=self.otherMascot)
+        return announcement

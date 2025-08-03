@@ -13,11 +13,11 @@ from BandEvent import BandEvent
 configFileName = 'config.ini'
 config = ConfigParser()
 config.read(configFileName)
-gamedayCSV = "events.csv"
+gamedayCSV = 'events.csv'
 
 events = []
 with open(gamedayCSV, newline='') as csvfile:
-    format_string = "%Y-%m-%d %H:%M"
+    format_string = '%Y-%m-%d %H:%M:%S'
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     for row in reader:
         print(', '.join(row))
@@ -46,7 +46,7 @@ client = discord.Client(intents=intents)
 @tasks.loop(minutes=1)
 async def time_check():
     message_channel = client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL']))
-    await message_channel.send('test')
+    # await message_channel.send('test')
 
 @time_check.before_loop
 async def before_tc():
@@ -92,12 +92,23 @@ async def on_message(message):
                 elif parsedMessage[1].lower() == 'server':
                     config['DiscordValues']['SERVER'] = str(message.server.id)
                     config.write(configfile)
-                    await message.channel.send('set server')
+                elif parsedMessage[1].lower() == 'role':
+                    if len(parsedMessage) == 3:
+                        config['DiscordValues']['ROLE'] = parsedMessage[2]
+                        print(parsedMessage[2])
+                        config.write(configfile)
+                        await message.channel.send('set role')
+                    else:
+                        await message.channel.send('set incorrect number parameters, expected 3, got {}'.format(len(parsedMessage)))
+                        
                 else:
                     await message.channel.send('Unknown configuration: ' + parsedMessage[1].lower())
                 
         else:
             await message.channel.send('Error: Not enough arguments')
+            
+    elif command == 'announce':
+        await announce(events[0])
             
     elif command == 'stop':
         await message.channel.send('stopping')
@@ -111,12 +122,23 @@ async def on_message(message):
         await message.channel.send(id)
         await client.get_channel(int(id)).send('test')
 
-def announce(event:BandEvent):
-    announcement = event.announce_str('<@&{}>'.format(config['BotValues']['ROLE']))
-    message_channel = client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL']))
-    message_channel.send(announcement)
+def announce(event:BandEvent): 
+    """
+    Sends an announcement if event.doNotify is True, if not does nothing
+    :param event: the event to make the announcement about
+    :return (bool): returns False if not supposed to notify, returns True if announcement is sent
+    """
+    if not event.doNotify:
+        return False
+    announcement = event.announce_str(config['DiscordValues']['ROLE'])
+    message_channel = client.get_channel(int(config['DiscordValues']['ANNOUNCECHANNEL']))
+    return message_channel.send(announcement)
+    return True
     
 def write_to_CSV():
+    """
+    writes all events in events to the csv events.csv
+    """
     CSV_str = ''
     CSV_str += events[0].toCSVrow()
     for e in events[1:]:

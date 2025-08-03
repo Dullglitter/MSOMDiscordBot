@@ -1,27 +1,27 @@
 {role} HAPPY GAME DAY AGAINST {other_school}
 Rehearsal starts at {time}, dont be late! 
 Gameday checklist:
-•Instrument + neckstrap + reeds (please don’t forget these)
-•Gameday Uniform (this must be worn at rehearsal)
+-Instrument + neckstrap + reeds (please don't forget these)
+-Gameday Uniform (this must be worn at rehearsal)
    -Red band shirt
    -Black shorts
    -long black socks
    -all black under armour shoes/drillmasters 
    -band hat
-•Uniform
+-Uniform
    -Jacket
    -Pants
    -black gloves 
    -hat box: hat, plume, spats
-•earplugs and lyre for the stands
-•RED bloodbag from early week check-in, make sure it is labeled with name and section, make sure you can clip it to your uniform pants, you will be trucking and running pregame with it
+-earplugs and lyre for the stands
+-RED bloodbag from early week check-in, make sure it is labeled with name and section, make sure you can clip it to your uniform pants, you will be trucking and running pregame with it
 
 Other things that may be nice to have
-•sunscreen (it never hurts)
-•sunglasses (for truck and stands only)
-•charger/portable charger if you think you may need one
-•change of clothes or shoes after if you want
+-sunscreen (it never hurts)
+-sunglasses (for truck and stands only)
+-charger/portable charger if you think you may need one
+-change of clothes or shoes after if you want
 
 Feel free to drop stuff off at CSPAC before rehearsal or bring your supplies to VTF!
 
-Beat the {time}!
+Beat the {other_mascot}!

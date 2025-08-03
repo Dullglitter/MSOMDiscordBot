@@ -1,7 +1,7 @@
 from datetime import datetime
 TYPE = 'Band Event'
 
-format_string = "%Y-%m-%d %H:%M"
+format_string = "%Y-%m-%d %H:%M:%S"
 
 class BandEvent:
     def __init__(self, name:str, time, doNotify, doCheckin):
@@ -44,6 +44,8 @@ class BandEvent:
         return " at {time} {features}".format(time=str(self.time), features=NAndC)
     
     def announce_str(role):
-        return ''
+        announcement = ''
+        return announcement
+    
     
     

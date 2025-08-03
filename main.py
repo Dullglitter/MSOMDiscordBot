@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands, tasks
 from configparser import ConfigParser
 import re
 from datetime import datetime
@@ -42,11 +43,22 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
+@tasks.loop(minutes=1)
+async def time_check():
+    message_channel = client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL']))
+    print('got here')
+    await message_channel.send('test')
 
+@time_check.before_loop
+async def before_tc():
+    await client.wait_until_ready()
 
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
+    time_check.start()
+    
+
     
 @client.event
 async def on_message(message):
@@ -78,6 +90,10 @@ async def on_message(message):
                     config['DiscordValues']['OUTPUTCHANNEL'] = str(message.channel.id)
                     config.write(configfile)
                     await client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL'])).send('set output channel')
+                elif parsedMessage[1].lower() == 'server':
+                    config['DiscordValues']['SERVER'] = str(message.server.id)
+                    config.write(configfile)
+                    await message.channel.send('set server')
                 else:
                     await message.channel.send('Unknown configuration: ' + parsedMessage[1].lower())
                 
@@ -86,6 +102,7 @@ async def on_message(message):
             
     elif command == 'stop':
         await message.channel.send('stopping')
+        time_check.stop()
         client.close()
         print('stopped')
         sys.exit(0)
@@ -94,7 +111,8 @@ async def on_message(message):
         await message.channel.send(id)
         await client.get_channel(int(id)).send('test')
             
-
 client.run(config['BotValues']['TOKEN'])
 
-print("hi")
+def announce(event:BandEvent):
+    event.announce_str(config['BotValues']['ROLE'])
+    

@@ -6,6 +6,8 @@ from datetime import datetime
 import csv
 from datetime import datetime
 import sys
+from pytz import timezone
+import pytz
 
 from Gameday import Gameday
 from BandEvent import BandEvent
@@ -14,6 +16,7 @@ configFileName = 'config.ini'
 config = ConfigParser()
 config.read(configFileName)
 gamedayCSV = 'events.csv'
+list_time_index = 0
 
 events = []
 with open(gamedayCSV, newline='') as csvfile:
@@ -31,11 +34,18 @@ with open(gamedayCSV, newline='') as csvfile:
                 #gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
     #events.append(game)
     #print(game)
-    events.sort()
+events.sort()
+# timezone = pytz.timezone(config['Other']['timezone'])
+
+# current_time = datetime.now().astimezone(timezone)
+for event in events:
+    if event.time < datetime.now():
+        list_time_index += 1
+    else:
+        break
     
-    for event in events:
-        print(event)
-        
+
+    
 prefix = config['BotValues']['PREFIX']
 
 intents = discord.Intents.default()
@@ -45,7 +55,13 @@ client = discord.Client(intents=intents)
 
 @tasks.loop(minutes=1)
 async def time_check():
-    message_channel = client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL']))
+    global list_time_index
+    # global timezone    
+    # current_time = datetime.now().astimezone(timezone)
+    current_time = datetime.now()
+    if events[list_time_index].time <= current_time:
+        await announce(events[list_time_index])
+        list_time_index += 1
     # await message_channel.send('test')
 
 @time_check.before_loop
@@ -92,12 +108,20 @@ async def on_message(message):
                 elif parsedMessage[1].lower() == 'server':
                     config['DiscordValues']['SERVER'] = str(message.server.id)
                     config.write(configfile)
-                elif parsedMessage[1].lower() == 'role':
+                elif parsedMessage[1].lower() == 'currentrole':
                     if len(parsedMessage) == 3:
-                        config['DiscordValues']['ROLE'] = parsedMessage[2]
+                        config['DiscordValues']['CURRENTROLE'] = parsedMessage[2]
                         print(parsedMessage[2])
                         config.write(configfile)
-                        await message.channel.send('set role')
+                        await message.channel.send('set currentrole')
+                    else:
+                        await message.channel.send('set incorrect number parameters, expected 3, got {}'.format(len(parsedMessage)))
+                elif parsedMessage[1].lower() == 'adminrole':
+                    if len(parsedMessage) == 3:
+                        config['DiscordValues']['ADMINROLE'] = parsedMessage[2]
+                        print(parsedMessage[2])
+                        config.write(configfile)
+                        await message.channel.send('set adminrole')
                     else:
                         await message.channel.send('set incorrect number parameters, expected 3, got {}'.format(len(parsedMessage)))
                         
@@ -130,7 +154,7 @@ def announce(event:BandEvent):
     """
     if not event.doNotify:
         return False
-    announcement = event.announce_str(config['DiscordValues']['ROLE'])
+    announcement = event.announce_str(config['DiscordValues']['currentrole'])
     message_channel = client.get_channel(int(config['DiscordValues']['ANNOUNCECHANNEL']))
     return message_channel.send(announcement)
     return True

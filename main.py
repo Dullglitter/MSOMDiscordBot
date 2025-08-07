@@ -2,9 +2,8 @@ import discord
 from discord.ext import commands, tasks
 from configparser import ConfigParser
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
-from datetime import datetime
 import sys
 from pytz import timezone
 import pytz
@@ -16,7 +15,9 @@ configFileName = 'config.ini'
 config = ConfigParser()
 config.read(configFileName)
 gamedayCSV = 'events.csv'
-list_time_index = 0
+notify_time_index = 0
+remind_time_index = 0
+announcement_msg = None
 
 events = []
 with open(gamedayCSV, newline='') as csvfile:
@@ -39,11 +40,12 @@ events.sort()
 
 # current_time = datetime.now().astimezone(timezone)
 for event in events:
-    if event.time < datetime.now():
-        list_time_index += 1
+    if event.time - timedelta(minutes=int(config['Other']['notify_offset_minutes'])) < datetime.now():
+        notify_time_index += 1
     else:
         break
-    
+
+remind_time_index = notify_time_index
 
     
 prefix = config['BotValues']['PREFIX']
@@ -53,16 +55,20 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
-@tasks.loop(minutes=1)
+@tasks.loop(seconds=1)
 async def time_check():
-    global list_time_index
+    global notify_time_index
+    global announcement_msg
     # global timezone    
     # current_time = datetime.now().astimezone(timezone)
-    current_time = datetime.now()
-    if events[list_time_index].time <= current_time:
-        await announce(events[list_time_index])
-        list_time_index += 1
-    # await message_channel.send('test')
+    if events[notify_time_index].time - timedelta(minutes=int(config['Other']['notify_offset_minutes'])) <= datetime.now():
+        announcement_msg = await announce(events[notify_time_index])
+        await announcement_msg.add_reaction('🎷')
+        notify_time_index += 1
+    global remind_time_index
+    if events[remind_time_index].time - timedelta(minutes=int(config['Other']['remind_offset_miuntes'])) <= datetime.now():
+        # await remind(events[notify_time_index])
+        remind_time_index += 1
 
 @time_check.before_loop
 async def before_tc():
@@ -154,10 +160,31 @@ def announce(event:BandEvent):
     """
     if not event.doNotify:
         return False
+    reaction = config['Other']['reaction']
     announcement = event.announce_str(config['DiscordValues']['currentrole'])
     message_channel = client.get_channel(int(config['DiscordValues']['ANNOUNCECHANNEL']))
+    if event.doCheckin:
+        reaction_time = int(config['Other']['notify_offset_minutes']) - int(config['Other']['remind_offset_miuntes'])
+        msg = message_channel.send(announcement + '\n\nReact to this message with a {}within {} minutes'
+                                    ' or be :hotdog:'.format(reaction, reaction_time))
+        return msg
+        
     return message_channel.send(announcement)
-    return True
+    
+# def remind(event:BandEvent): 
+#     """
+#     Sends an weenies members of current_role if they have not reacted to the message for the event
+#     :param event: the event to make the check reactions on
+#     :return (bool): returns False if not supposed to remind, returns True if message sent or no one to remind
+#     """
+#     reaction = config['Other']['reaction']
+#     match = re.search('\d+', config['DiscordValues']['currentrole'])
+#     role = discord.get_role(int(match.group()))
+#     member_list = role.members()
+#     weenies = []
+#     for member in member_list:
+#         if 
+    
     
 def write_to_CSV():
     """

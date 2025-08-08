@@ -91,10 +91,20 @@ async def on_message(message):
         return
     parsedMessage = message.content.split(' ')
     command = parsedMessage[0].lower()[1:]
+    
+    admin_role = client.get_guild(int(config['DiscordValues']['guild'])).get_role(int(config['DiscordValues']['adminrole']))
+    admin_list = admin_role.members
+    is_admin = False
+    if message.author in admin_list:
+        is_admin = True
     if command == 'hello':
         await message.channel.send('Hello!')
         
     elif command == 'set':
+        if not is_admin and message.author.id != 508292942155218959:
+            await message.channel.send('You do not have access to that command')
+            return
+            
         if len(parsedMessage) >= 2:
             
             with open('config.ini', 'w') as configfile: 
@@ -111,12 +121,13 @@ async def on_message(message):
                     config['DiscordValues']['OUTPUTCHANNEL'] = str(message.channel.id)
                     config.write(configfile)
                     await client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL'])).send('set output channel')
-                elif parsedMessage[1].lower() == 'server':
-                    config['DiscordValues']['SERVER'] = str(message.server.id)
+                elif parsedMessage[1].lower() == 'guikd':
+                    config['DiscordValues']['guild'] = str(message.server.id)
                     config.write(configfile)
                 elif parsedMessage[1].lower() == 'currentrole':
                     if len(parsedMessage) == 3:
-                        config['DiscordValues']['CURRENTROLE'] = parsedMessage[2]
+                        match = re.search('\d+', parsedMessage[2])
+                        config['DiscordValues']['currentrole'] = match.group()
                         print(parsedMessage[2])
                         config.write(configfile)
                         await message.channel.send('set currentrole')
@@ -124,7 +135,8 @@ async def on_message(message):
                         await message.channel.send('set incorrect number parameters, expected 3, got {}'.format(len(parsedMessage)))
                 elif parsedMessage[1].lower() == 'adminrole':
                     if len(parsedMessage) == 3:
-                        config['DiscordValues']['ADMINROLE'] = parsedMessage[2]
+                        match = re.search('\d+', parsedMessage[2])
+                        config['DiscordValues']['adminrole'] = match.group()
                         print(parsedMessage[2])
                         config.write(configfile)
                         await message.channel.send('set adminrole')
@@ -141,6 +153,9 @@ async def on_message(message):
         await announce(events[0])
             
     elif command == 'stop':
+        if not is_admin and message.author.id != 508292942155218959:
+            await message.channel.send('You do not have access to that command')
+            return
         await message.channel.send('stopping')
         write_to_CSV()
         time_check.stop()
@@ -179,7 +194,7 @@ def announce(event:BandEvent):
 #     """
 #     reaction = config['Other']['reaction']
 #     match = re.search('\d+', config['DiscordValues']['currentrole'])
-#     role = discord.get_role(int(match.group()))
+#     role = discord.get_role(int(config['DiscordValues']['currentrole']))
 #     member_list = role.members()
 #     weenies = []
 #     for member in member_list:

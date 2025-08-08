@@ -21,7 +21,14 @@ class Gameday(BandEvent):
         time = 'with time finalized' if self.isTimeAnnounced else 'with time not announced'
         return 'Game' + super()._str() + ' against {} at {} {}, beat the {}!'.format(self.otherTeam, location, time, self.otherMascot)
     
-    def announce_str(self, role):
+    def announce_str(self, role_id):
+        """
+        Writes an announcement for this gameday event
+        :param role_id(str or int): the role id not containing <@& or >
+        
+        :return (str): the message that will be sent
+        """
+        role = "<@&{}>".format(role_id)
         announcement = ''
         with open('gameday_notification.txt', 'r') as f:
             announcement = f.read()

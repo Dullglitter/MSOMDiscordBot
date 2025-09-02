@@ -67,7 +67,7 @@ async def time_check():
         notify_time_index += 1
     global remind_time_index
     if events[remind_time_index].time - timedelta(minutes=int(config['Other']['remind_offset_miuntes'])) <= datetime.now():
-        # await remind(events[notify_time_index])
+        await remind(events[notify_time_index])
         remind_time_index += 1
 
 @time_check.before_loop
@@ -150,7 +150,7 @@ async def on_message(message):
             await message.channel.send('Error: Not enough arguments')
             
     elif command == 'announce':
-        await announce(events[0])
+        await announce(events[notify_time_index])
             
     elif command == 'stop':
         if not is_admin and message.author.id != 508292942155218959:
@@ -186,19 +186,19 @@ def announce(event:BandEvent):
         
     return message_channel.send(announcement)
     
-# def remind(event:BandEvent): 
-#     """
-#     Sends an weenies members of current_role if they have not reacted to the message for the event
-#     :param event: the event to make the check reactions on
-#     :return (bool): returns False if not supposed to remind, returns True if message sent or no one to remind
-#     """
-#     reaction = config['Other']['reaction']
-#     match = re.search('\d+', config['DiscordValues']['currentrole'])
-#     role = discord.get_role(int(config['DiscordValues']['currentrole']))
-#     member_list = role.members()
-#     weenies = []
-#     for member in member_list:
-#         if 
+def remind(event:BandEvent): 
+    """
+    Sends an weenies members of current_role if they have not reacted to the message for the event
+    :param event: the event to make the check reactions on
+    :return (bool): returns False if not supposed to remind, returns True if message sent or no one to remind
+    """
+    reaction = config['Other']['reaction']
+    match = re.search('\d+', config['DiscordValues']['currentrole'])
+    # role = client.get_role(int(config['DiscordValues']['currentrole']))
+    role = client.get_guild(int(config['DiscordValues']['guild'])).get_role(int(config['DiscordValues']['currentrole']))
+    member_list = role.members()
+    weenies = []
+    print(member_list)
     
     
 def write_to_CSV():

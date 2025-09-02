@@ -1,7 +1,7 @@
 {role} HAPPY GAME DAY AGAINST {other_school}
 Rehearsal starts at {time}, dont be late! 
 Gameday checklist:
--Instrument + neckstrap + reeds (please don't forget these)
+-Instrument + neckstrap + reeds
 -Gameday Uniform (this must be worn at rehearsal)
    -Red band shirt
    -Black shorts
@@ -22,6 +22,6 @@ Other things that may be nice to have
 -charger/portable charger if you think you may need one
 -change of clothes or shoes after if you want
 
-Feel free to drop stuff off at CSPAC before rehearsal or bring your supplies to VTF!
+Feel free to drop stuff off at CSPAC before rehearsal or bring your supplies to VTF, bandroom closes 15 minutes before rehesal!
 
 Beat the {other_mascot}!

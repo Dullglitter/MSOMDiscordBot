@@ -50,7 +50,7 @@ remind_time_index = notify_time_index
     
 prefix = config['BotValues']['PREFIX']
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
@@ -192,12 +192,18 @@ def remind(event:BandEvent):
     :param event: the event to make the check reactions on
     :return (bool): returns False if not supposed to remind, returns True if message sent or no one to remind
     """
+    client.get_all_members()
     reaction = config['Other']['reaction']
     match = re.search('\d+', config['DiscordValues']['currentrole'])
     # role = client.get_role(int(config['DiscordValues']['currentrole']))
-    role = client.get_guild(int(config['DiscordValues']['guild'])).get_role(int(config['DiscordValues']['currentrole']))
-    member_list = role.members()
+    guild = client.get_guild(int(config['DiscordValues']['guild']))
+    role = guild.get_role(int(config['DiscordValues']['currentrole']))
+    member_list = guild.members
     weenies = []
+    for member in member_list:
+        if role in member.roles:
+            weenies.append(member)
+    # if member has role and hasnt reacted -> weenie
     print(member_list)
     
     

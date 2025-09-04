@@ -185,26 +185,29 @@ def announce(event:BandEvent):
         return msg
         
     return message_channel.send(announcement)
-    
-def remind(event:BandEvent): 
+
+@client.event    
+async def remind(event:BandEvent): 
     """
     Sends an weenies members of current_role if they have not reacted to the message for the event
     :param event: the event to make the check reactions on
     :return (bool): returns False if not supposed to remind, returns True if message sent or no one to remind
     """
     client.get_all_members()
-    reaction = config['Other']['reaction']
-    match = re.search('\d+', config['DiscordValues']['currentrole'])
-    # role = client.get_role(int(config['DiscordValues']['currentrole']))
+    # reaction = config['Other']['reaction']
     guild = client.get_guild(int(config['DiscordValues']['guild']))
     role = guild.get_role(int(config['DiscordValues']['currentrole']))
     member_list = guild.members
+    global announcement_msg
+    announcement_msg = await announcement_msg.channel.fetch_message(announcement_msg.id)
+    reacters = [user async for user in announcement_msg.reactions[0].users()]
     weenies = []
     for member in member_list:
-        if role in member.roles:
+        # if member has role and hasnt reacted -> weenie
+        if role in member.roles and member not in reacters:
             weenies.append(member)
-    # if member has role and hasnt reacted -> weenie
-    print(member_list)
+            
+    
     
     
 def write_to_CSV():

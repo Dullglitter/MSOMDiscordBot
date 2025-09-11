@@ -5,8 +5,8 @@ import re
 from datetime import datetime, timedelta
 import csv
 import sys
-from pytz import timezone
-import pytz
+# from pytz import timezone
+# import pytz
 
 from Gameday import Gameday
 from BandEvent import BandEvent
@@ -31,10 +31,6 @@ with open(gamedayCSV, newline='') as csvfile:
             events.append(Gameday(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
         elif row[0] == 'event':
             events.append(BandEvent(row[1], row[2], row[3], row[4]))
-    #game = Gameday(gameday['Name'],gameday['Time'],gameday['doCheckin'],
-                #gameday['doNotify'],gameday['otherSchool'],gameday['otherMascot'])
-    #events.append(game)
-    #print(game)
 events.sort()
 # timezone = pytz.timezone(config['Other']['timezone'])
 
@@ -51,7 +47,7 @@ remind_time_index = notify_time_index
 prefix = config['BotValues']['PREFIX']
 
 intents = discord.Intents.all()
-intents.message_content = True
+# intents.message_content = True
 
 client = discord.Client(intents=intents)
 
@@ -97,7 +93,7 @@ async def on_message(message):
     is_admin = False
     if message.author in admin_list:
         is_admin = True
-    if command == 'hello':
+    if command == 'hi':
         await message.channel.send('Hello!')
         
     elif command == 'set':
@@ -214,7 +210,7 @@ async def remind(event:BandEvent):
         for weenie in weenies[1:]:
             weenie_text += '. ' + weenie.mention
         weenie_text += "\n Reason: Didn't react to reminder in time.\nEvidence: Bot doesn't lie"
-        message_channel = client.get_channel(int(config['DiscordValues']['ANNOUNCECHANNEL']))
+        message_channel = client.get_channel(int(config['DiscordValues']['weeniechannel']))
         await message_channel.send(weenie_text)
     
     

@@ -6,12 +6,12 @@ from datetime import datetime, timedelta
 import csv
 import sys
 # from pytz import timezone
-# import pytz
+import pytz
 
 from Gameday import Gameday
 from BandEvent import BandEvent
 
-configFileName = 'config.ini'
+configFileName = 'test_config.ini'
 config = ConfigParser()
 config.read(configFileName)
 gamedayCSV = 'events.csv'
@@ -20,23 +20,25 @@ remind_time_index = 0
 announcement_msg = None
 
 events = []
+local_timezone = pytz.timezone(config['Other']['timezone'])
 with open(gamedayCSV, newline='') as csvfile:
     format_string = '%Y-%m-%d %H:%M:%S'
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     for row in reader:
         print(', '.join(row))
         event_time = datetime.strptime(row[2], format_string)
+        # event_time = event_time.replace(tzinfo=local_timezone)
         print(event_time)
         if row[0] == 'gameday':
             events.append(Gameday(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
         elif row[0] == 'event':
             events.append(BandEvent(row[1], row[2], row[3], row[4]))
 events.sort()
-# timezone = pytz.timezone(config['Other']['timezone'])
 
-# current_time = datetime.now().astimezone(timezone)
+start_time = datetime.now(local_timezone).replace(tzinfo=None)
+print('Current time: ' + str(start_time))
 for event in events:
-    if event.time - timedelta(minutes=int(config['Other']['notify_offset_minutes'])) < datetime.now():
+    if event.time - timedelta(minutes=int(config['Other']['notify_offset_minutes'])) < start_time:
         notify_time_index += 1
     else:
         break
@@ -56,15 +58,19 @@ async def time_check():
     global notify_time_index
     global announcement_msg
     # global timezone    
-    # current_time = datetime.now().astimezone(timezone)
-    if events[notify_time_index].time - timedelta(minutes=int(config['Other']['notify_offset_minutes'])) <= datetime.now():
-        announcement_msg = await announce(events[notify_time_index])
-        await announcement_msg.add_reaction('🎷')
-        notify_time_index += 1
+    # current_time = datetime.now().replace(tzinfo=None)
+    if len(events) > notify_time_index:
+        notif_time = events[notify_time_index].time - timedelta(minutes=int(config['Other']['notify_offset_minutes']))
+        if notif_time <= datetime.now(local_timezone).replace(tzinfo=None):
+            announcement_msg = await announce(events[notify_time_index])
+            await announcement_msg.add_reaction('🎷')
+            notify_time_index += 1
     global remind_time_index
-    if events[remind_time_index].time - timedelta(minutes=int(config['Other']['remind_offset_miuntes'])) <= datetime.now():
-        await remind(events[notify_time_index])
-        remind_time_index += 1
+    if len(events) > remind_time_index:
+        remind_time = events[remind_time_index].time - timedelta(minutes=int(config['Other']['remind_offset_miuntes']))
+        if remind_time <= datetime.now(local_timezone).replace(tzinfo=None):
+            await remind(events[remind_time_index])
+            remind_time_index += 1
 
 @time_check.before_loop
 async def before_tc():
@@ -97,13 +103,13 @@ async def on_message(message):
         await message.channel.send('Hello!')
         
     elif command == 'set':
-        if not is_admin and message.author.id != 508292942155218959:
+        if message.author.id != 508292942155218959 and not is_admin:
             await message.channel.send('You do not have access to that command')
             return
             
         if len(parsedMessage) >= 2:
             
-            with open('config.ini', 'w') as configfile: 
+            with open(configFileName, 'w') as configfile: 
                 # done in each if statement in order to make sure writes are being done correctly
                 if parsedMessage[1].lower() == 'announce':
                     config['DiscordValues']['ANNOUNCECHANNEL'] = str(message.channel.id)
@@ -117,7 +123,7 @@ async def on_message(message):
                     config['DiscordValues']['OUTPUTCHANNEL'] = str(message.channel.id)
                     config.write(configfile)
                     await client.get_channel(int(config['DiscordValues']['OUTPUTCHANNEL'])).send('set output channel')
-                elif parsedMessage[1].lower() == 'guikd':
+                elif parsedMessage[1].lower() == 'guild':
                     config['DiscordValues']['guild'] = str(message.server.id)
                     config.write(configfile)
                 elif parsedMessage[1].lower() == 'currentrole':
@@ -149,7 +155,7 @@ async def on_message(message):
         await announce(events[notify_time_index])
             
     elif command == 'stop':
-        if not is_admin and message.author.id != 508292942155218959:
+        if message.author.id != 508292942155218959 and not is_admin:
             await message.channel.send('You do not have access to that command')
             return
         await message.channel.send('stopping')
@@ -158,6 +164,13 @@ async def on_message(message):
         client.close()
         print('stopped')
         sys.exit(0)
+    elif command == 'listposition':
+        #useful for seeing where in event list bot is
+        await message.channel.send('remind index: {}, notify index : {}'.format(remind_time_index, notify_time_index))
+        
+    elif command == 'time':
+        # to see what time the bot thinks it is
+        await message.channel.send(str(datetime.now(local_timezone).replace(tzinfo=None)))
     elif command == 'channelid':
         id = str(message.channel.id)
         await message.channel.send(id)
@@ -185,7 +198,7 @@ def announce(event:BandEvent):
 @client.event    
 async def remind(event:BandEvent): 
     """
-    Sends an weenies members of current_role if they have not reacted to the message for the event
+    Weenies members of current_role if they have not reacted to the message for the event
     :param event: the event to make the check reactions on
     :return (bool): returns False if no one to remind, returns True if message sent or no one to remind
     """
@@ -209,7 +222,7 @@ async def remind(event:BandEvent):
         weenie_text = 'Weenies: ' + weenies[0].mention
         for weenie in weenies[1:]:
             weenie_text += '. ' + weenie.mention
-        weenie_text += "\n Reason: Didn't react to reminder in time.\nEvidence: Bot doesn't lie"
+        weenie_text += "\n Reason: Didn't react to reminder in time.\nEvidence: Go check lol"
         message_channel = client.get_channel(int(config['DiscordValues']['weeniechannel']))
         await message_channel.send(weenie_text)
     

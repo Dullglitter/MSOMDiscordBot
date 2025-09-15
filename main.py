@@ -11,7 +11,8 @@ import pytz
 from Gameday import Gameday
 from BandEvent import BandEvent
 
-configFileName = 'test_config.ini'
+# use this to control what server it is using
+configFileName = 'config.ini'
 config = ConfigParser()
 config.read(configFileName)
 gamedayCSV = 'events.csv'
